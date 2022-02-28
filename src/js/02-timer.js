@@ -2,6 +2,17 @@
 import flatpickr from "flatpickr";
 // Додатковий імпорт стилів
 import "flatpickr/dist/flatpickr.min.css";
+
+const btnStart = document.querySelector('button');
+// const input = document.querySelector('input');
+const daysValue = document.querySelector('span[data-days]');
+const hoursValue =  document.querySelector('span[data-hours]');
+const minutesValue = document.querySelector('span[data-minutes]');
+const secondsValue = document.querySelector('span[data-seconds]');
+
+let intervalId ;
+btnStart.disabled = true; 
+
 const options = {
     enableTime: true,
     time_24hr: true,
@@ -9,8 +20,29 @@ const options = {
     minuteIncrement: 1,
     onClose(selectedDates) {
       console.log(selectedDates[0]);
-    },
-  };
+
+      if (selectedDates[0]>new Date()) {
+        clearInterval(intervalId);
+        btnStart.disabled = false;      
+    } else {
+        alert('Please choose a date in the future');
+    }
+
+btnStart.addEventListener('click',() => {
+  intervalId = setInterval(() => {
+const deltaTime = selectedDates[0] - new Date();
+
+if(deltaTime < 1000) {
+  clearInterval(intervalId);
+}
+  const time = convertMs(deltaTime);
+  updateClockFace(time);
+    }, 1000);
+  });
+},
+};    
+
+flatpickr("#datetime-picker", options);
 
 function convertMs(ms) {
     // Number of milliseconds per unit of time
@@ -19,14 +51,21 @@ function convertMs(ms) {
     const hour = minute * 60;
     const day = hour * 24;
   
-    // Remaining days
-    const days = Math.floor(ms / day);
-    // Remaining hours
-    const hours = Math.floor((ms % day) / hour);
-    // Remaining minutes
-    const minutes = Math.floor(((ms % day) % hour) / minute);
-    // Remaining seconds
-    const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+    const days = pad(Math.floor(ms / day));
+    const hours = pad(Math.floor((ms % day) / hour));
+    const minutes = pad(Math.floor(((ms % day) % hour) / minute));
+    const seconds = pad(Math.floor((((ms % day) % hour) % minute) / second));
   
     return { days, hours, minutes, seconds };
   }
+
+  function pad(value) {
+    return String(value).padStart(2, '0');
+}
+
+function updateClockFace({ days, hours, minutes, seconds }) {
+    daysValue.textContent = `${days}`;
+    hoursValue.textContent = `${hours}`;
+    minutesValue.textContent = `${minutes}`;
+    secondsValue.textContent = `${seconds}`;
+}
