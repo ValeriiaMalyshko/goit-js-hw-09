@@ -4,13 +4,13 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 
 const btnStart = document.querySelector('button');
-// const input = document.querySelector('input');
+const input = document.querySelector('#datetime-picker');
 const daysValue = document.querySelector('span[data-days]');
 const hoursValue =  document.querySelector('span[data-hours]');
 const minutesValue = document.querySelector('span[data-minutes]');
 const secondsValue = document.querySelector('span[data-seconds]');
 
-let intervalId ;
+let intervalId = null ;
 btnStart.disabled = true; 
 
 const options = {
@@ -22,7 +22,7 @@ const options = {
       console.log(selectedDates[0]);
 
       if (selectedDates[0]>new Date()) {
-        clearInterval(intervalId);
+        // clearInterval(intervalId);
         btnStart.disabled = false;      
     } else {
         alert('Please choose a date in the future');
@@ -35,14 +35,16 @@ const deltaTime = selectedDates[0] - new Date();
 if(deltaTime < 1000) {
   clearInterval(intervalId);
 }
+else {
   const time = convertMs(deltaTime);
   updateClockFace(time);
+}
     }, 1000);
   });
 },
 };    
 
-flatpickr("#datetime-picker", options);
+flatpickr(input, options);
 
 function convertMs(ms) {
     // Number of milliseconds per unit of time
