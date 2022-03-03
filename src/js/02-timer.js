@@ -10,8 +10,10 @@ const hoursValue =  document.querySelector('span[data-hours]');
 const minutesValue = document.querySelector('span[data-minutes]');
 const secondsValue = document.querySelector('span[data-seconds]');
 
-let intervalId = null ;
 btnStart.disabled = true; 
+let intervalId = null ;
+let deltaTime = 0;
+let choseDate = 0;
 
 const options = {
     enableTime: true,
@@ -19,32 +21,36 @@ const options = {
     defaultDate: new Date(),
     minuteIncrement: 1,
     onClose(selectedDates) {
-      console.log(selectedDates[0]);
+      choseDate = selectedDates[0];
 
-      if (selectedDates[0]>new Date()) {
+      if (choseDate>new Date()) {
         // clearInterval(intervalId);
         btnStart.disabled = false;      
     } else {
         alert('Please choose a date in the future');
     }
+  },
+};
+
+flatpickr(input, options);  
 
 btnStart.addEventListener('click',() => {
   intervalId = setInterval(() => {
-const deltaTime = selectedDates[0] - new Date();
+  let nowDate = Date.now();
+  deltaTime = choseDate - nowDate;
 
 if(deltaTime < 1000) {
   clearInterval(intervalId);
 }
 else {
-  const time = convertMs(deltaTime);
-  updateClockFace(time);
+  updateClockFace(convertMs(deltaTime));
 }
     }, 1000);
   });
-},
-};    
 
-flatpickr(input, options);
+function pad(value) {
+  return String(value).padStart(2, '0');
+}
 
 function convertMs(ms) {
     // Number of milliseconds per unit of time
@@ -60,10 +66,6 @@ function convertMs(ms) {
   
     return { days, hours, minutes, seconds };
   }
-
-  function pad(value) {
-    return String(value).padStart(2, '0');
-}
 
 function updateClockFace({ days, hours, minutes, seconds }) {
     daysValue.textContent = `${days}`;
